@@ -1,0 +1,4 @@
+interface:
+  display_name: "Unity Editor Agent"
+  short_description: "Unity tool-first agent workflow for Codex"
+  default_prompt: "Use $unity-editor-agent to inspect, modify, and extend a Unity project through the AI Unity Editor Agent protocol."
