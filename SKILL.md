@@ -32,6 +32,7 @@ Read [references/ai-unity-editor-agent-protocol.md](references/ai-unity-editor-a
 - Prefer small, single-purpose tools over broad unrestricted ones.
 
 Read [references/decision-policy.md](references/decision-policy.md) when the right path is ambiguous.
+Read [references/pitfalls-log.md](references/pitfalls-log.md) when the task involves prefab hierarchy surgery, generated UI resources, importer-sensitive asset moves, or temporary project-specific editor helpers.
 
 ## Intelligent Capability Iteration
 
@@ -60,6 +61,13 @@ Read [references/capability-iteration.md](references/capability-iteration.md) fo
 - For asset search, GUID/path work, dependencies, reverse references, and text asset reads: read [references/asset-playbook.md](references/asset-playbook.md)
 - For scene object creation or scene usage inspection: read [references/scene-playbook.md](references/scene-playbook.md)
 - For compile problems, import-state confusion, or service/tool failures: read [references/diagnostics-playbook.md](references/diagnostics-playbook.md)
+
+## High-Frequency Pitfalls
+
+- When moving UI art out of generated folders such as `VectoUI`, inspect the consuming prefab dependencies first, then move the assets, update importer settings, and create or refresh any needed `SpriteAtlas`.
+- For full-screen panel, mask, or dimmer sprites, prefer `Sprite` import mode with `spriteMeshType = FullRect` instead of tight mesh, then verify the importer state with a Unity-side asset tool.
+- Do not try to reparent children of a nested prefab instance inside another prefab. First inspect the nesting with `prefab.nested_prefab_overrides`. If hierarchy changes are required, normalize the source prefab and reinstall the nested instance, or unpack only with explicit user approval.
+- Treat task-specific generated tools as disposable. After the task succeeds, either delete them with `tool.delete_generated` or explicitly classify them as reusable project capabilities.
 
 ## Validation
 

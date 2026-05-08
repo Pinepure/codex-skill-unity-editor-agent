@@ -27,10 +27,24 @@ Typical inspection sequence:
 - Use `prefab.create_from_json` when JSON creation is enough.
 - If the task is structural prefab editing that existing tools do not cover, add the smallest prefab-focused generated tool.
 - Avoid direct `.prefab` YAML editing for Unity tasks.
+- Before changing the hierarchy of a nested prefab instance, inspect it with `prefab.nested_prefab_overrides`.
+- Do not directly reparent children that still belong to a nested prefab instance. If hierarchy normalization is needed, prefer:
+  - normalizing the source prefab first and then reinstalling or re-instantiating the nested prefab
+  - unpacking the nested prefab only when the user explicitly approves that tradeoff
 - Keep generated prefab tools scoped to one clear job, such as:
   - embedding a source prefab
   - rebinding a specific view component
   - standardizing one popup hierarchy
+
+## Nested Prefab Recovery Pattern
+
+When a generated tool fails with errors such as "Setting the parent of a transform which resides in a Prefab instance is not possible":
+
+1. Stop retrying the same instance-side reparent operation.
+2. Confirm the nested instance status with `prefab.nested_prefab_overrides`.
+3. Move the hierarchy normalization to the source prefab instead of the nested instance.
+4. Reinstall the normalized source prefab into the target prefab.
+5. Re-run prefab structure export and binding validation.
 
 ## Typical Validation
 

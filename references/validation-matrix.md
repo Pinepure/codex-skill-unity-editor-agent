@@ -29,6 +29,7 @@ Use this file to choose a minimum verification set before closing Unity work.
   - `asset.meta_info`
   - `asset.reverse_dependencies`
   - `asset.reference_chain`
+  - `prefab.find_asset_references` when moved textures, sprites, or atlases are consumed by prefabs
 
 ## Scene Changes
 
@@ -48,3 +49,13 @@ Use this file to choose a minimum verification set before closing Unity work.
 - Optional checks:
   - `service.call_recent`
   - asset refresh and re-check, only when import state is relevant
+
+## Nested Prefab Hierarchy Repairs
+
+- Required checks:
+  - compile state
+  - `prefab.nested_prefab_overrides` before and or after the repair when nesting behavior matters
+  - `prefab.export_structure_json` after the repair
+- Optional checks:
+  - `prefab.find_asset_references`
+  - binding or component-path verification through the project-specific prefab inspection output

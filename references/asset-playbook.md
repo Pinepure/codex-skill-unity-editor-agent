@@ -30,6 +30,19 @@ Use this file for asset lookup, GUID/path conversion, dependency analysis, rever
 - Normalize asset paths and keep them under `Assets/` unless a manifest tool explicitly supports `Packages/`.
 - Use `asset.refresh` only when there is a concrete reason to sync Unity’s asset database with disk.
 
+## UI Asset Migration Pattern
+
+When moving UI textures from generated folders into a feature-owned location:
+
+1. Confirm the real consumers with prefab dependency or reference tools before moving anything.
+2. Move the textures into the feature folder.
+3. Verify or correct importer state:
+   - `textureType = Sprite`
+   - `spriteMode = Single` when the source is a standalone sprite
+   - `spriteMeshType = FullRect` for full-screen panels, dimmers, masks, or other rectangular UI art that should not use a tight mesh
+4. Create or update a `SpriteAtlas` when the moved textures belong to one popup or feature set.
+5. Validate that the prefab references now resolve to the new asset paths.
+
 ## Validation
 
 Validate asset-side results with a second Unity tool whenever practical:
@@ -37,3 +50,4 @@ Validate asset-side results with a second Unity tool whenever practical:
 - `asset.find` after creation
 - `asset.meta_info` after import-sensitive changes
 - dependency or reverse-dependency tools after wiring changes
+- `prefab.find_asset_references` after moving art that is consumed by a prefab

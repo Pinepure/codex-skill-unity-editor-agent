@@ -68,6 +68,8 @@ At the end of the task, classify the added tool:
 
 Do not merge, refactor, or replace existing project-internal capabilities without user confirmation.
 
+If the result is `task-specific`, prefer removing the generated tool after validation with `tool.delete_generated` so temporary recovery tools do not accumulate in the project.
+
 ## Reuse Rules
 
 - Reuse an existing tool if it can produce the required Unity-side effect or inspection result with acceptable composition.
