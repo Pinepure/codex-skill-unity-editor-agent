@@ -38,7 +38,7 @@ ${CODEX_HOME:-$HOME/.codex}/skills/unity-editor-agent
 
 ```bash
 mkdir -p "${CODEX_HOME:-$HOME/.codex}/skills"
-git clone <你的仓库地址> "${CODEX_HOME:-$HOME/.codex}/skills/unity-editor-agent"
+git clone git@github.com:Pinepure/codex-skill-unity-editor-agent.git "${CODEX_HOME:-$HOME/.codex}/skills/unity-editor-agent"
 ```
 
 ## 如何使用
@@ -76,7 +76,7 @@ Use $unity-editor-agent to inspect, modify, and extend a Unity project through t
 最简单的分享方式，是把这个文件夹作为一个 Git 仓库公开，然后让其他人直接 clone 到自己的 Codex skills 目录：
 
 ```bash
-git clone <你的仓库地址> "${CODEX_HOME:-$HOME/.codex}/skills/unity-editor-agent"
+git clone git@github.com:Pinepure/codex-skill-unity-editor-agent.git "${CODEX_HOME:-$HOME/.codex}/skills/unity-editor-agent"
 ```
 
 ## 说明
