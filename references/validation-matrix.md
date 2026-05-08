@@ -5,9 +5,9 @@ Use this file to choose a minimum verification set before closing Unity work.
 ## Tool Installation or Tool Changes
 
 - Required checks:
-  - `compile.status` or `compile.wait_until_idle`
-  - `compile.errors` if compile failed
-  - reload manifest
+  - `compile.status`
+  - `compile.snapshot` if compile failed
+  - re-check `manifestHash` and refresh discovery
   - confirm expected tool ID is present
 
 ## Prefab Writes
@@ -44,7 +44,7 @@ Use this file to choose a minimum verification set before closing Unity work.
 
 - Required checks:
   - `compile.status`
-  - `compile.errors` when relevant
+  - `compile.snapshot` or `compile.errors_summary` when relevant
   - `service.log_recent` when a tool fails
 - Optional checks:
   - `service.call_recent`

@@ -7,14 +7,15 @@ Use this file when the execution path is ambiguous or when the task might tempt 
 For every Unity task:
 
 1. `GET /health`
-2. `GET /manifest`
-3. `compile.status`
-4. Choose the best existing tool or tool combination from the manifest.
-5. Only if the manifest is insufficient, add one new project-internal tool.
-6. Wait for compile idle.
-7. Reload the manifest.
-8. Call the new or existing tool.
-9. Validate.
+2. Cache `manifestHash` and reuse capability knowledge while it is unchanged.
+3. `POST /manifest/search` or `GET /manifest/bundle/{id}`
+4. `POST /tool/describe_many` for the tools you may actually call
+5. `compile.status`
+6. Choose the best existing tool or tool combination from current discovery results.
+7. Only if discovery is insufficient, add one new project-internal tool.
+8. Wait for compile idle, re-check `manifestHash`, and refresh discovery.
+9. Call the new or existing tool.
+10. Validate.
 
 ## Unity Tool First
 
@@ -62,7 +63,7 @@ If an existing generated tool already covers the gap, reuse it instead of creati
 
 ## Schema Discipline
 
-Manifest schema fields are JSON-encoded strings. Parse them before deciding:
+Describe-many schema fields are JSON-encoded strings. Parse them before deciding:
 
 - which parameters a tool accepts
 - whether a tool can cover the task

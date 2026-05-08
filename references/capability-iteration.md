@@ -10,7 +10,7 @@ Close the immediate task and improve the Unity tool surface without creating unn
 
 ### 1. Inventory
 
-- Read the latest manifest.
+- Read current discovery data.
 - List the closest matching existing tool IDs.
 - Check whether a tool combination already solves the task.
 
@@ -45,10 +45,11 @@ Generated tool rules:
 
 After installing a tool:
 
-1. Poll `compile.status` or use `compile.wait_until_idle`
-2. If compile fails, inspect `compile.errors`
-3. Fix the generated tool
-4. Reload the manifest
+1. Poll `compile.status`
+2. If compile fails, inspect `compile.snapshot`
+3. If the snapshot is insufficient, inspect `compile.errors_summary` or paged `compile.errors`
+4. Fix the generated tool
+5. Re-check `manifestHash` and refresh discovery
 
 Never call the new tool from stale manifest assumptions.
 

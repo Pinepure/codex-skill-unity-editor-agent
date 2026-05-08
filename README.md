@@ -4,7 +4,9 @@
 
 它的核心目标是让 AI 在 Unity 开发里遵循一套严格的 `Unity tool first` 工作流：
 
-- 把 Unity 的实时 `/manifest` 视为唯一事实源
+- 先读 `/health`，用 `manifestHash` 做能力缓存键
+- 优先使用 `/manifest/search`、bundle 和 `/tool/describe_many` 做按需 discovery
+- 当结果过大时，通过 `/result/{handleId}` 分页或分块继续读取
 - 能用现有 Unity tool 完成的事情，就不用 shell 编辑或直接改 Unity 资产文件
 - 只有在当前 manifest 明确证明能力缺失时，才新增 Unity 能力
 - 默认只做增量新增，不主动重构或合并已有项目内能力
@@ -16,7 +18,7 @@
 
 - [Pinepure/com.aiunity.editor-agent](https://github.com/Pinepure/com.aiunity.editor-agent)
 
-这个库负责在 Unity 项目里提供本地 AI 服务、`/manifest`、`/call/{toolId}` 调用面，以及 AI 可扩展的 Unity tool 机制。
+这个库负责在 Unity 项目里提供本地 AI 服务、轻量 manifest discovery、`/call/{toolId}` 调用面、结果分页句柄，以及 AI 可扩展的 Unity tool 机制。
 
 根据该库的基本安装方式，Unity 侧可以按以下流程接入：
 

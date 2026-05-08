@@ -35,8 +35,8 @@ Use this file when the Unity task resembles prior failures or recovery work. It 
 
 ### Correct Recovery
 
-1. Check `compile.wait_until_idle` or `compile.status`.
-2. Inspect `compile.errors` or `compile.errors_since_last_compile`.
+1. Check `compile.status`.
+2. Inspect `compile.snapshot`, then `compile.errors_summary` or paged `compile.errors` when needed.
 3. Distinguish:
    - compiler errors
    - runtime console errors caused by the last tool call
