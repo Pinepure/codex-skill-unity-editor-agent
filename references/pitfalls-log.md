@@ -125,7 +125,30 @@ Use this file when the Unity task resembles prior failures or recovery work. It 
 
 - Prefer documenting the recovery pattern over keeping a one-off generated tool alive.
 
-## 7. Temporary Project Editor Helpers Also Need Cleanup
+## 7. Prefab Object References Must Be Serialized by Unity
+
+### Failure Pattern
+
+- A prefab needs a sprite, prefab, or other `ObjectReference` field updated.
+- The change is attempted by editing `.prefab` YAML directly or by guessing `guid` and `fileID`.
+- Unity does not surface the new dependency, `prefab.find_asset_references` still shows nothing, or the field silently remains unset.
+
+### Correct Recovery
+
+1. Stop trying to stamp the reference through raw YAML.
+2. Add or reuse a narrow Editor tool that:
+   - loads prefab contents with `PrefabUtility.LoadPrefabContents`
+   - loads the target assets with `AssetDatabase.LoadAssetAtPath`
+   - assigns the component fields directly
+   - saves through `PrefabUtility.SaveAsPrefabAsset`
+3. Validate from the consumer side with `asset.dependencies` and or `prefab.find_asset_references`.
+4. Delete the tool if it was only for one task.
+
+### Default Rule
+
+- Unity-managed serialized references should be written by Unity, not by hand-authored prefab YAML.
+
+## 8. Temporary Project Editor Helpers Also Need Cleanup
 
 ### Failure Pattern
 
@@ -143,7 +166,7 @@ Use this file when the Unity task resembles prior failures or recovery work. It 
 
 - Do not keep maintenance burden for one-time binding helpers once the serialized state is stable.
 
-## 8. Unity Asset Presence Does Not Imply Git Ownership
+## 9. Unity Asset Presence Does Not Imply Git Ownership
 
 ### Failure Pattern
 
@@ -160,3 +183,62 @@ Use this file when the Unity task resembles prior failures or recovery work. It 
 ### Default Rule
 
 - Never infer git scope from Unity scope.
+
+## 10. Service-Version Drift Is Normal
+
+### Failure Pattern
+
+- The skill docs assume `manifestHash`, `/manifest/search`, bundle endpoints, or `compile.snapshot` exist everywhere.
+- The local service is an older build such as `0.1.1` and only exposes `GET /manifest`, `compile.status`, and a narrower tool surface.
+- The agent stalls on non-existent endpoints instead of continuing with what is available.
+
+### Correct Recovery
+
+1. Start with `/health`.
+2. Read the current manifest and trust the advertised tools over the docs.
+3. If richer discovery or diagnostics endpoints are missing, fall back to `GET /manifest`, `compile.errors`, `compile.errors_since_last_compile`, and service logs.
+4. Add a small generated tool when the missing capability is real.
+
+### Default Rule
+
+- The live service surface wins over static skill docs.
+
+## 11. Image-Generated Sprite Art Needs a Chroma-Key-to-Alpha Pass
+
+### Failure Pattern
+
+- Raster character or VFX art is generated for Unity through a normal image model path.
+- The raw output is dropped straight into the project with a flat green background still attached, or the `n x m` frame sheet is assembled before background removal.
+- The imported sprite carries dirty edges, incorrect bounds, or bakes the key color into later animation work.
+
+### Correct Recovery
+
+1. Generate the art on a perfectly flat chroma-key background that is absent from the subject, typically `#00ff00`.
+2. Remove the key color locally to produce alpha PNGs before Unity import.
+3. For frame animation, clean each frame first, then assemble the final sheet only if a sheet is truly required.
+4. If the animation is meant to use separate frame PNGs, import those frame PNGs individually as single sprites and bind the animator to those assets directly.
+
+### Default Rule
+
+- Do not treat image-model output as Unity-ready until the chroma key has been converted to alpha and the intended frame-packaging decision is explicit.
+
+## 12. URP Particle Textures Need Transparent Surface Materials
+
+### Failure Pattern
+
+- A flame, ember, or firefly PNG has correct alpha.
+- The particle material is still left on an opaque surface configuration.
+- The scene shows black fringes, dark quads, or other alpha-looking artifacts even though the source texture itself is fine.
+
+### Correct Recovery
+
+1. Keep the particle texture import clean: alpha enabled, single sprite or texture as intended, no leftover sheet metadata when the asset is meant to be single-frame.
+2. On the particle material, explicitly set:
+   - `SurfaceType = Transparent`
+   - transparent render queue / transparent render tag
+   - alpha-friendly blend and `ZWrite = 0` when appropriate for the shader
+3. Rebuild or re-save the material through Unity, then validate the resulting `.mat` contents or runtime behavior.
+
+### Default Rule
+
+- PNG alpha alone is insufficient for URP particle art; material transparency settings are part of the asset contract.

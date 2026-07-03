@@ -46,10 +46,10 @@ Generated tool rules:
 After installing a tool:
 
 1. Poll `compile.status`
-2. If compile fails, inspect `compile.snapshot`
-3. If the snapshot is insufficient, inspect `compile.errors_summary` or paged `compile.errors`
+2. If compile fails, inspect the best compile diagnostics the current service actually exposes
+3. If the first diagnostic is insufficient, inspect `compile.errors`, `compile.errors_since_last_compile`, or service logs as available
 4. Fix the generated tool
-5. Re-check `manifestHash` and refresh discovery
+5. Refresh discovery from the endpoints the current service actually supports, typically `GET /manifest`
 
 Never call the new tool from stale manifest assumptions.
 
@@ -70,6 +70,13 @@ At the end of the task, classify the added tool:
 Do not merge, refactor, or replace existing project-internal capabilities without user confirmation.
 
 If the result is `task-specific`, prefer removing the generated tool after validation with `tool.delete_generated` so temporary recovery tools do not accumulate in the project.
+
+Common high-value gaps that justify adding a tiny tool instead of stopping:
+
+- binding serialized object references on an existing prefab component
+- one-off prefab migration or normalization that must be saved by Unity
+- importer-state inspection that current asset tools do not expose
+- project-specific runtime or scene inspection needed only for the current feature
 
 ## Reuse Rules
 

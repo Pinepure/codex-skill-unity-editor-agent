@@ -6,8 +6,8 @@ Use this file to choose a minimum verification set before closing Unity work.
 
 - Required checks:
   - `compile.status`
-  - `compile.snapshot` if compile failed
-  - re-check `manifestHash` and refresh discovery
+  - the best compile diagnostics the current service exposes if compile failed
+  - re-check live discovery and refresh `GET /manifest` or equivalent
   - confirm expected tool ID is present
 
 ## Prefab Writes
@@ -15,6 +15,7 @@ Use this file to choose a minimum verification set before closing Unity work.
 - Required checks:
   - compile state
   - prefab inspection tool such as `prefab.export_structure_json`
+  - consumer-side verification such as `asset.dependencies` or `prefab.find_asset_references` when object references were changed
 - Optional checks:
   - `prefab.find_asset_references`
   - `prefab.nested_prefab_overrides`
@@ -44,7 +45,7 @@ Use this file to choose a minimum verification set before closing Unity work.
 
 - Required checks:
   - `compile.status`
-  - `compile.snapshot` or `compile.errors_summary` when relevant
+  - the best compile diagnostics the current service exposes when relevant
   - `service.log_recent` when a tool fails
 - Optional checks:
   - `service.call_recent`

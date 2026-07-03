@@ -2,15 +2,23 @@
 
 `unity-editor-agent` 是一个面向 Codex 的 skill，用来通过本地 AI Unity Editor Agent 服务完成 Unity 项目中的查询、修改、扩展和验证工作。
 
-它的核心目标是让 AI 在 Unity 开发里遵循一套严格的 `Unity tool first` 工作流：
+它的核心目标是让 AI 在 Unity 开发里遵循一套严格的 `Unity tool first` 工作流。连接前先读 `Library/AiUnityEditorAgent/endpoint.json` 和 `token.txt`，不要假设固定端口：
 
-- 先读 `/health`，用 `manifestHash` 做能力缓存键
-- 优先使用 `/manifest/search`、bundle 和 `/tool/describe_many` 做按需 discovery
+- 先读 `/health`，再读 `GET /manifest`，以当前 manifest 实际返回的工具列表为准
+- 如果当前服务版本支持 `/manifest/search`、bundle 和 `/tool/describe_many`，按需使用；如果不支持，直接退回 `GET /manifest`
+- 对非简单重复任务，先查 `workflow.match_recipes`，优先复用成功 workflow
 - 当结果过大时，通过 `/result/{handleId}` 分页或分块继续读取
 - 能用现有 Unity tool 完成的事情，就不用 shell 编辑或直接改 Unity 资产文件
-- 只有在当前 manifest 明确证明能力缺失时，才新增 Unity 能力
+- 只有在当前 manifest 明确证明能力缺失时，才新增 Unity 能力，而且要补最小能力，不要停在“没有现成工具”
+- 多步任务优先 `batch.run` / `workset.*`，减少往返和 token 消耗
+- 写操作前先 `validator.capture_baseline`，写完后必须 `validator.run`
+- 看 `validator.run` 时要同时看 `checkedFiles`、`unstagedFiles`、`stagedFiles`、`untrackedFiles`
+- 可复用的成功任务，结束前要 `workflow.record_success`
 - 默认只做增量新增，不主动重构或合并已有项目内能力
 - 不修改 `Packages/`
+- 当前常见服务版本需要 `X-Unity-Ai-Token`，不要误用 Bearer 头
+- Prefab 的对象引用绑定必须通过 Unity Editor 侧赋值并保存，不要直接改 `.prefab` YAML 试图写引用
+- 一次性生成工具执行成功后应删除，把经验沉淀进 skill 文档，而不是长期堆在项目里
 
 ## 依赖
 

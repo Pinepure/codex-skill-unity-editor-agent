@@ -7,13 +7,12 @@ Use this file when the execution path is ambiguous or when the task might tempt 
 For every Unity task:
 
 1. `GET /health`
-2. Cache `manifestHash` and reuse capability knowledge while it is unchanged.
-3. `POST /manifest/search` or `GET /manifest/bundle/{id}`
-4. `POST /tool/describe_many` for the tools you may actually call
+2. Read `GET /manifest` and treat the returned tool list as the current source of truth.
+3. If the running service supports richer discovery such as `/manifest/search`, bundle endpoints, or `/tool/describe_many`, use them. Otherwise keep going from `GET /manifest`.
 5. `compile.status`
 6. Choose the best existing tool or tool combination from current discovery results.
 7. Only if discovery is insufficient, add one new project-internal tool.
-8. Wait for compile idle, re-check `manifestHash`, and refresh discovery.
+8. Wait for compile idle, then refresh discovery from the endpoints the current service actually supports.
 9. Call the new or existing tool.
 10. Validate.
 
@@ -33,6 +32,8 @@ Use non-Unity tools only for:
 - Authoring the C# source that will be uploaded through `tool.upsert_script`
 - Reading the protocol or skill reference files
 - Inspecting artifacts for which no Unity tool exists yet
+
+Do use non-Unity tools to author the generated C# script text when needed, but use Unity tools to install, execute, validate, and remove the resulting capability.
 
 Do not use non-Unity tools to modify Unity-managed state if a manifest tool already supports the operation.
 
@@ -61,6 +62,8 @@ Before adding a tool, explicitly prove the gap:
 
 If an existing generated tool already covers the gap, reuse it instead of creating a near-duplicate.
 
+If no tool covers the gap, do not stop at analysis. Add the smallest Unity-side tool that closes the missing operation, especially for prefab reference binding or one-off migration work.
+
 ## Schema Discipline
 
 Describe-many schema fields are JSON-encoded strings. Parse them before deciding:
@@ -70,3 +73,5 @@ Describe-many schema fields are JSON-encoded strings. Parse them before deciding
 - whether a new tool would overlap an existing one
 
 Do not infer arguments from tool names alone.
+
+If the current service version does not expose `describe_many`, infer the callable contract only from the manifest fields that are actually present, then validate by making a small safe call.

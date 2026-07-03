@@ -5,9 +5,9 @@ Use this file when compile status, import state, or tool execution does not matc
 ## First Checks
 
 1. `compile.status`
-2. `compile.snapshot` when `hasCompileErrors == true`
-3. `compile.errors_summary` when the snapshot is not specific enough
-4. paged `compile.errors` when full entries are required
+2. If the service exposes richer compile-summary tools, use them.
+3. Otherwise use `compile.errors` and `compile.errors_since_last_compile` when available.
+4. Use paged `compile.errors` when full entries are required
 5. `service.log_recent` when a tool fails unexpectedly
 6. `service.call_recent` when you need the recent invocation history
 
@@ -16,8 +16,8 @@ Use this file when compile status, import state, or tool execution does not matc
 Always do this sequence:
 
 1. Wait until compile is idle
-2. Check compile snapshot or error summary
-3. Re-check `manifestHash` and refresh discovery
+2. Check the best compile diagnostics that the current service actually exposes
+3. Re-read `GET /manifest` or equivalent live discovery
 4. Confirm the expected tool ID appears
 5. Then call the tool
 
@@ -26,9 +26,10 @@ Always do this sequence:
 ### Tool ID missing after install
 
 - Reload the manifest
-- Re-check `manifestHash`
 - Check compile status
-- Check compile snapshot or error summary
+- Check available compile diagnostics
+- Inspect the current Unity compile/console output before assuming a manifest cache issue. If a generated tool never appears, the script usually failed to compile and never entered the Editor assembly.
+- When summaries look incomplete, page through `compile.errors` or inspect the live Editor output so you do not miss generated-tool compile errors.
 - Check service logs
 
 ### Asset exists on disk but Unity disagrees
@@ -36,6 +37,7 @@ Always do this sequence:
 - Refresh assets if there is a concrete import reason
 - Re-check manifest tools for import diagnostics
 - If the manifest still lacks a sufficient diagnostic path, add a narrow import-state tool
+- For prefab field references, prefer a small Editor binding tool over direct YAML inspection or manual GUID/fileID guessing
 
 ### Tool ran but result is wrong
 
